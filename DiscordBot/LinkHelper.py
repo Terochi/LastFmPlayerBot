@@ -18,11 +18,12 @@ ytdl = yt_dlp.YoutubeDL({
 })
 
 def get_stream_url(url):
-    return ytdl.extract_info(url, download=False)['url']
+    info = ytdl.extract_info(url, download=False)
+    return info['url']
 
 def get_link(query):
-    if re.match(r'^(https?://)?(www\.)?(youtube\.com|youtu\.be)/', query):
-        return query
+    if re.match(r'^(https?://)?(www\.|music\.)?(youtube\.com|youtu\.be)/', query):
+        return QueueItem(None, None, query)
 
     info = ytdl.extract_info(f"ytsearch:{query}", download=False)
     if 'entries' in info and len(info['entries']) > 0:
@@ -46,7 +47,7 @@ async def get_links_from_last_fm(url):
     links = set()
     for a_tag in soup.find_all('a', attrs={'data-youtube-id': True}):
         uid = a_tag['data-youtube-id']
-        links.add(f"https://www.youtube.com/watch?v={uid}")
+        links.add(f"https://music.youtube.com/watch?v={uid}")
     return links
 
 

@@ -31,7 +31,7 @@ async def list_queue(ctx):
 
     message = "Current Queue:\n"
     for i, item in enumerate(vc.queue, start=1):
-        message += f"{i}. {item.track} - {item.artist}\n"
+        message += f"{i}. {item.track} - {item.artist} ({item.uri})\n"
     await ctx.send(message)
 
 
@@ -112,12 +112,17 @@ async def play(ctx, *, search: str=None):
 
         not_found_tracks = []
         for t in all_tracks.values():
-            links = await get_links_from_last_fm(t.track_url)
-            if links:
-                print(f"Adding {t.track} - {t.artist} from last fm")
-                vc.queue.append(QueueItem(t.track, t.artist, next(iter(links)), False))
+            found = find_track_in_folders(t.artist, t.track)
+            if found:
+                print(f"Adding {t.track} - {t.artist} from local")
+                vc.queue.append(QueueItem(t.track, t.artist, found[2], True))
             else:
-                not_found_tracks.append(t)
+                links = await get_links_from_last_fm(t.track_url)
+                if links:
+                    print(f"Adding {t.track} - {t.artist} from last fm")
+                    vc.queue.append(QueueItem(t.track, t.artist, next(iter(links)), False))
+                else:
+                    not_found_tracks.append(t)
 
         async for queue_item in populate_links([QueueItem(t.track, t.artist, None, False) for t in not_found_tracks],
                              [f"{t.track} - {t.artist}" for t in not_found_tracks]):

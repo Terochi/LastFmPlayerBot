@@ -35,11 +35,11 @@ def find_track_in_folders(target_artist, target_name):
 
                         if artist and title:
                             if target_artist in artist.lower() and target_name in title.lower():
-                                return (title, artist, filepath)
+                                return title, artist, filepath
 
                     filename_no_ext = os.path.splitext(file)[0]
                     if target_name in filename_no_ext.lower():
-                        return (filename_no_ext, os.path.split(root)[-1], filepath)
+                        return filename_no_ext, os.path.split(root)[-1], filepath
                 except:
                     continue
     return None
