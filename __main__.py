@@ -3,18 +3,14 @@ import random
 
 import discord
 import json
-from discord import FFmpegPCMAudio, FFmpegOpusAudio
+from discord import FFmpegOpusAudio
 from discord.ext import commands
-import requests
-import youtube_dl
 import yt_dlp
 import asyncio
-import aiohttp
 import re
-from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
-from last_fm import *
+from LastFmApi.Facade import *
 
 load_dotenv()
 
@@ -272,18 +268,25 @@ artist_name = "Iyowa"
 #     print("No video found")
 
 # print(requests.get(f"http://ws.audioscrobbler.com/2.0/?method=track.getinfo&username={user}&api_key={LASTFM_API_KEY}&format=json&track={track_name}&artist={artist_name}").json())
-user_info = asyncio.run(get_user_info(user))
-track_info = asyncio.run(get_track_info(user, track_name, artist_name))
+# user_info = asyncio.run(get_user_info(user))
+# track_info = asyncio.run(get_track_info(user, track_name, artist_name))
 
-track_range = asyncio.run(get_tracks_range(user))
-artist_range = asyncio.run(get_artists_range(user))
-albums_range = asyncio.run(get_albums_range(user))
+# track_range = asyncio.run(get_ranged_tracks(user))
+# artist_range = asyncio.run(get_ranged_artists(user))
+# albums_range = asyncio.run(get_ranged_albums(user))
 
-loved_tracks = asyncio.run(get_loved_tracks(user))
-top_tracks = asyncio.run(get_top_tracks(user))
-top_albums = asyncio.run(get_top_albums(user))
-top_artists = asyncio.run(get_top_artists(user))
+# loved_tracks = asyncio.run(get_loved_tracks(user))
+# top_tracks = asyncio.run(get_top_tracks(user))
+# top_tracks5 = asyncio.run(get_top_tracks(user, limit=1, page=5))
+# top_albums = asyncio.run(get_top_albums(user))
+# top_artists = asyncio.run(get_top_artists(user))
 
-print("")
+import YoutubeApi.LinkHelper
+
+async def main():
+    async for link in YoutubeApi.LinkHelper.search_links(["iyowa kyuu kurarin", "rule ado", "missing, missing miku 7"]):
+        print(f"Result: {link}")
+
+asyncio.run(main())
 
 # bot.run(BOT_TOKEN)
