@@ -17,13 +17,16 @@ ytdl = yt_dlp.YoutubeDL({
     'source_address': '0.0.0.0',
 })
 
+
 def get_stream_url(url):
     info = ytdl.extract_info(url, download=False)
     return info['url']
 
+
 def get_link(query):
     if re.match(r'^(https?://)?(www\.|music\.)?(youtube\.com|youtu\.be)/', query):
-        return QueueItem(None, None, query)
+        info = ytdl.extract_info(query, download=False)
+        return QueueItem(info['channel'], info['title'], query)
 
     info = ytdl.extract_info(f"ytsearch:{query}", download=False)
     if 'entries' in info and len(info['entries']) > 0:
@@ -40,6 +43,7 @@ def populate_link(queue_item: QueueItem, query):
     queue_item.uri = link
     return queue_item
 
+
 async def get_links_from_last_fm(url):
     text = await get_text_async(url)
     if not text: return None
@@ -49,6 +53,20 @@ async def get_links_from_last_fm(url):
         uid = a_tag['data-youtube-id']
         links.add(f"https://music.youtube.com/watch?v={uid}")
     return links
+
+
+async def run_in_parallel(func, args):
+    loop = asyncio.get_running_loop()
+    tasks = [loop.run_in_executor(None, func, args[i]) for i in range(len(args))]
+    for completed_task in asyncio.as_completed(tasks):
+        result = await completed_task
+        if result: yield result
+
+
+async def run_in_parallel_async(funcs):
+    for completed_task in asyncio.as_completed(funcs):
+        result = await completed_task
+        if result: yield result
 
 
 async def search_links(queries):
